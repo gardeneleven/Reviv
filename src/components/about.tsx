@@ -81,7 +81,7 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
           }}
         >
           <Image
-            src="/assets/orange2.png"
+            src="./assets/orange2.png"
             alt="Rotating Bottle"
             width={150}
             height={150}
@@ -92,21 +92,21 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
 
       {/* Text Sections */}
       <div className={`absolute top-[10%] right-12 w-1/2 text-white transition-opacity duration-700 z-20 ${showFirst ? 'opacity-100' : 'opacity-0'}`}>
-        <Image src="/assets/heritage.png" alt="About Image 1" width={200} height={200} className="rounded-lg" />
+        <Image src="./assets/heritage.png" alt="About Image 1" width={200} height={200} className="rounded-lg" />
         <p className="text-lg max-w-lg leading-relaxed mt-0">
         Decades ago, on a sun-drenched street corner in southern India, a local soda-maker poured his spiced syrup into thick glass bottles, sealed them with marbles, and stacked them in a crate chilled by blocks of ice. Children gathered, wide-eyed, waiting for that satisfying pop — the moment the marble shot down and the fizz burst upward. That small bottle held more than soda; it held ritual, identity, and pride. Goli Soda was born out of ingenuity and necessity, crafted with local flavors and a unique bottling method that captured the spirit of the streets.
         </p>
       </div>
 
       <div className={`absolute top-[30%] left-12 w-1/2 text-white transition-opacity duration-700 z-20 ${showSecond ? 'opacity-100' : 'opacity-0'}`}>
-        <Image src="/assets/nostalgia.png" alt="About Image 2" width={200} height={200} className="rounded-lg" />
+        <Image src="./assets/nostalgia.png" alt="About Image 2" width={200} height={200} className="rounded-lg" />
         <p className="text-lg max-w-md leading-relaxed mt-0">
         Goli Soda is more than a beverage — it is a symbol of cultural heritage deeply woven into the fabric of Indian street life. The clink of the marble, the hiss of carbonation, and the ritual of popping the bottle open are experiences passed down through generations. Reviving this tradition in a new land meant honoring its origins. Every detail, from the distinctive bottle design to the authentic flavors, was preserved to reflect the roots of where it all began. You’re reliving a story, told through bubbles, laughter, and timeless flavor
         </p>
       </div>
 
       <div className={`absolute top-[60%] right-10 w-1/2 text-white transition-opacity duration-700 z-20 ${showThird ? 'opacity-100' : 'opacity-0'}`}>
-        <Image src="/assets/connection.png" alt="About Image 3" width={200} height={200} className="rounded-lg" />
+        <Image src="./assets/connection.png" alt="About Image 3" width={200} height={200} className="rounded-lg" />
         <p className="text-lg max-w-lg leading-relaxed mt-0">
         What began on the vibrant streets of India now fizzes to life in a new land, carrying with it the essence of home for many and a spark of discovery for others. Every bottle tells a shared story: of migration, memory, and reinvention. It connects generations of immigrants to their roots while inviting new audiences to experience a piece of Indian tradition. In this journey from India to America, Goli Soda becomes a cultural handshake — a small, joyful exchange that brings people together, one pop at a time.
 
