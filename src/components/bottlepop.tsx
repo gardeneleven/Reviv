@@ -61,7 +61,7 @@ const BottlePop = () => {
               className="absolute top-0 left-0 w-full h-full transition-opacity duration-100"
             >
               <Image
-                src={`/assets/pop/pop-${i + 1}.png`}
+                src={`./assets/pop/pop-${i + 1}.png`}
                 alt={`Pop Frame ${i + 1}`}
                 fill
                 style={{ objectFit: 'contain' }}

@@ -13,7 +13,7 @@ export default function Page() {
 
   return (
     <div className="relative w-[100vw] "
-         style={{ backgroundImage: "url('/assets/bg3.png')" }}>
+         style={{ backgroundImage: "url('./assets/bg3.png')" }}>
       <Navbar />
       <div className='overflow-x-hidden'>
         <Experience/>

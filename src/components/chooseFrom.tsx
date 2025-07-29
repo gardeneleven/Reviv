@@ -3,11 +3,11 @@
 import Image from 'next/image';
 
 const flavors = [
-  { name: 'Orange', src: '/assets/bottles/orange.png', color: '#FF7F00' }, 
-  { name: 'Lemon Lime', src: '/assets/bottles/lemon.png', color: '#32CD32' }, 
-  { name: 'Guava', src: '/assets/bottles/guava.png', color: '#FF4F87' },       
-  { name: 'Cola', src: '/assets/bottles/cola.png', color: '#5C4033' },         
-  { name: 'Mango', src: '/assets/bottles/mango.png', color: '#FFC107' },       
+  { name: 'Orange', src: './assets/bottles/orange.png', color: '#FF7F00' }, 
+  { name: 'Lemon Lime', src: './assets/bottles/lemon.png', color: '#32CD32' }, 
+  { name: 'Guava', src: './assets/bottles/guava.png', color: '#FF4F87' },       
+  { name: 'Cola', src: './assets/bottles/cola.png', color: '#5C4033' },         
+  { name: 'Mango', src: './assets/bottles/mango.png', color: '#FFC107' },       
 ];
 
 const ChooseFlavor = () => {

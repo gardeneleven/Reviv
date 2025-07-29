@@ -13,7 +13,7 @@ const Page = () => {
         style={{ transform: 'translate(-50%, -50%)' }}
       >
         <Image
-          src="/assets/comingsoon.png"
+          src="./assets/comingsoon.png"
           alt="Bottle"
           width={1280}
           height={0} // Use 0 to preserve aspect ratio when only width is defined

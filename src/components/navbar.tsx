@@ -19,7 +19,7 @@ const Navbar = () => {
       <div className="w-26">
         <Link href="/">
           <Image
-            src="/assets/logo.png"
+            src="./assets/logo.png"
             alt="Reviv Logo"
             width={120}
             height={40}

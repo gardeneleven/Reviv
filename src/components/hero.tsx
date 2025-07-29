@@ -51,7 +51,7 @@ const Hero = () => {
           className={`fade-slide ${item.src === 'india.svg' ? 'india-pop' : ''}`}
         >
           <Image
-            src={`/assets/${item.src}`}
+            src={`./assets/${item.src}`}
             alt={item.src}
             width={item.width}
             height={0}
@@ -79,7 +79,7 @@ const Hero = () => {
           }}
         >
           <Image
-            src="/assets/orange2.png"
+            src="./assets/orange2.png"
             alt="Bottle"
             width={180}
             height={0}

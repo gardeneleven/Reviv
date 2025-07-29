@@ -7,34 +7,34 @@ import clsx from 'clsx';
 const flavours = [
   {
     name: 'Orange',
-    bottle: '/assets/bottles/orange.png',
-    bgImage: '/assets/backgrounds/orange.png',
+    bottle: './assets/bottles/orange.png',
+    bgImage: './assets/backgrounds/orange.png',
     bgText: 'orange',
   },
   
   
   {
     name: 'Lemon',
-    bottle: '/assets/bottles/lemon.png',
-    bgImage: '/assets/backgrounds/lemon.png',
+    bottle: './assets/bottles/lemon.png',
+    bgImage: './assets/backgrounds/lemon.png',
     bgText: 'LEMON',
   },
   {
     name: 'Guava',
-    bottle: '/assets/bottles/guava.png',
-    bgImage: '/assets/backgrounds/guava.png',
+    bottle: './assets/bottles/guava.png',
+    bgImage: './assets/backgrounds/guava.png',
     bgText: 'GUAVA',
   },
   {
     name: 'Cola',
-    bottle: '/assets/bottles/cola.png',
-    bgImage: '/assets/backgrounds/cola.png',
+    bottle: './assets/bottles/cola.png',
+    bgImage: './assets/backgrounds/cola.png',
     bgText: 'COLA',
   },
   {
     name: 'Mango',
-    bottle: '/assets/bottles/mango.png',
-    bgImage: '/assets/backgrounds/mango.png',
+    bottle: './assets/bottles/mango.png',
+    bgImage: './assets/backgrounds/mango.png',
     bgText: 'MANGO',
   },
 ];

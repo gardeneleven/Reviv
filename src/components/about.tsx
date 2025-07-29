@@ -56,13 +56,13 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
         }
       }}
       className="relative w-screen h-[222vh] bg-cover bg-center bg-no-repeat overflow-hidden px-12"
-      style={{ backgroundImage: "url('/assets/about.png')" }}
+      style={{ backgroundImage: "url('./assets/about.png')" }}
     >
       {/* Static upright bottle (before scroll) */}
       {!showFixedBottle && (
         <div className="absolute top-[15%] left-1/2 -translate-x-1/2 z-[9999]">
           <Image
-            src="/assets/orange2.png"
+            src="./assets/orange2.png"
             alt="Bottle"
             width={150}
             height={150}
