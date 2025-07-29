@@ -7,6 +7,7 @@ import BottlePop from '@/components/bottlepop';
 import Experience from '@/components/experience';
 import ChooseFrom from '@/components/chooseFrom';
 import Footer from '@/components/footer';
+import "./globals.css";
 
 export default function Page() {
   
