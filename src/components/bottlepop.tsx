@@ -428,7 +428,7 @@ const BottleAnimation = () => {
                 />
 
                 {/* 🔒 Bottle – fixed size like scroll/shake */}
-                <div className="absolute top-[50] left-1/2 -translate-x-1/2 z-10 w-[600px] h-[800px]">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-[70vw] max-w-[600px] aspect-[3/4]">
                   <div className="relative w-full h-full">
                     <Image
                       src={flavorImages[flavorIndex]}

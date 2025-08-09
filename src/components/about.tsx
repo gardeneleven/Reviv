@@ -59,9 +59,9 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
       style={{ backgroundImage: "url('./assets/aboutb.png')" }}
     >
       {/* Always-on top-right badge */}
-      <div className="absolute top-20 left-4 sm:top-[120px] sm:left-10 z-[10] pointer-events-none">
+      <div className="absolute top-20 left-4 sm:top-[120px] sm:left-10 z-[1000] pointer-events-none">
   <Image
-    src="/assets/aboutus.png"
+    src="/assets/about.png"
     alt="About Us"
     width={200} // default for mobile
     height={160}
