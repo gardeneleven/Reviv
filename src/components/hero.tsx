@@ -9,7 +9,7 @@ const items = [
   { src: 'the.svg', top: '18%', left: '23%', width: 70, topSm: '22%', leftSm: '16%', widthSm: 50 },
   { src: 'streets.svg', top: '18%', left: '22%', width: 300, topSm: '22%', leftSm: '12%', widthSm: 240 },
   { src: 'of.svg', top: '32%', left: '35%', width: 60, topSm: '26%', leftSm: '30%', widthSm: 45 },
-  { src: 'india.svg', top: '13%', left: '16%', width: 950, center: true, topSm: '25%', leftSm: '2%', widthSm: 550 },
+  { src: 'india.svg', top: '13%', left: '16%', width: 950, center: true, topSm: '30%', leftSm: '2%', widthSm: 350 },
   { src: 'to.svg', top: '63%', left: '49%', width: 96, topSm: '56%', leftSm: '52%', widthSm: 70 },
   { src: 'the2.svg', top: '66%', left: '54%', width: 70, topSm: '62%', leftSm: '56%', widthSm: 50 },
   { src: 'world.svg', top: '65%', left: '46%', width: 350, topSm: '62%', leftSm: '50%', widthSm: 240 },
