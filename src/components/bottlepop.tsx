@@ -447,7 +447,7 @@ const BottleAnimation = () => {
       </div>
 
       {/* ✅ Flavor Description + Buttons – center right */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-6 z-20">
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-6 z-[9999]">
         <div className="flex flex-col gap-4">
           {flavorFruits.map((fruitSrc, i) => (
             <button
