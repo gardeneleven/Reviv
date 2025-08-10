@@ -59,7 +59,7 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
       style={{ backgroundImage: "url('./assets/aboutb.png')" }}
     >
       {/* Always-on top-right badge */}
-      <div className="absolute top-20 left-4 sm:top-[120px] sm:left-10 z-[1000] pointer-events-none">
+      <div className="absolute top-20 left-4 sm:top-[120px] sm:left-10 z-[100] pointer-events-none">
   <Image
     src="/assets/about.png"
     alt="About Us"
@@ -73,7 +73,7 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
 
       {/* Static upright bottle (before scroll) */}
       {!showFixedBottle && (
-        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 z-[9999]">
+        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 z-[99]">
           <Image
             src="/assets/orange.png"
             alt="Bottle"
@@ -87,7 +87,7 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
       {/* Rotating bottle (on scroll) */}
       {showFixedBottle && (
         <motion.div
-          className="fixed top-[12%] left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
+          className="fixed top-[12%] left-1/2 -translate-x-1/2 z-[99] pointer-events-none"
           style={{
             rotate,
             transformOrigin: '50% 50%',
@@ -105,8 +105,8 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
 
       {/* Text Sections */}
       <div className="
-  absolute top-[12%] left-1/2 -translate-x-1/2 w-[90vw] text-white z-20
-  sm:top-[10%] sm:right-12 sm:left-auto sm:translate-x-0 sm:w-1/2
+  absolute top-[12%] left-1/2 -translate-x-1/2 w-[90vw] text-white 
+  sm:top-[10%] sm:right-12 sm:left-auto sm:translate-x-0 sm:w-1/2 z-[1000]
 ">
   <Image
     src="/assets/heritage.svg"
@@ -122,7 +122,7 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
 
 
 <div className={`
-  absolute top-[40%] left-1/2 -translate-x-1/2 w-[90vw] text-white transition-opacity duration-700 z-20
+  absolute top-[40%] left-1/2 -translate-x-1/2 w-[90vw] text-white transition-opacity duration-700 z-[1000]
   sm:top-[30%] sm:left-12 sm:translate-x-0 sm:w-1/2
   ${showSecond ? 'opacity-100' : 'opacity-0'}
 `}>
@@ -140,7 +140,7 @@ const About = forwardRef<HTMLDivElement>((_, ref) => {
 
 
 <div className={`
-  absolute top-[70%] left-1/2 -translate-x-1/2 w-[90vw] text-white transition-opacity duration-700 z-20
+  absolute top-[70%] left-1/2 -translate-x-1/2 w-[90vw] text-white transition-opacity duration-700 z-[1000]
   sm:top-[60%] sm:right-10 sm:left-auto sm:translate-x-0 sm:w-1/2
   ${showThird ? 'opacity-100' : 'opacity-0'}
 `}>
