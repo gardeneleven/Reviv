@@ -32,7 +32,7 @@ export default function Page() {
       <Navbar />
 
       {/* Fixed dim overlay (no scroll animation) */}
-      <div className="fixed inset-0 bg-black/40 pointer-events-none z-[9000]" />
+      <div className="fixed inset-0 bg-black/20 pointer-events-none z-[9000]" />
 
       <div ref={bottleRef}>
         <BottlePop />
