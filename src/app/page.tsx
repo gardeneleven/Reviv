@@ -41,7 +41,7 @@ export default function Page() {
     opacity: useTransform(scrollYProgress, [0.125, 0.16], [1, 0]),
     y: useTransform(scrollYProgress, [0.125, 0.16], [0, -100]),
   }}
-  className="absolute top-0 left-0 w-full h-screen z-0" // z-0 keeps it behind the bottle
+  className="absolute top-0 left-0 w-full h-screen z-100" // z-0 keeps it behind the bottle
 >
   <Hero />
   <motion.div
