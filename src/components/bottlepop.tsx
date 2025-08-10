@@ -5,7 +5,7 @@ import { useScroll, useTransform, motion, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
 // -----------------------------------------------------------------------------
-// Types
+// Types: add scrollend to WindowEventMap so TS is happy.
 // -----------------------------------------------------------------------------
 declare global {
   interface WindowEventMap {
@@ -128,7 +128,7 @@ const BottleAnimation = () => {
     window.scrollTo({ top: target, behavior: 'smooth' });
   }, []);
 
-  // ---- Reverse-scroll fix: stepper with scrollend unlock (typed, stable) ----
+  // ---- Stepper with scrollend unlock ----
   const SCROLL_UNLOCK_FALLBACK_MS = 1200;
 
   const goToStep = useCallback((next: number) => {
@@ -149,24 +149,30 @@ const BottleAnimation = () => {
     window.setTimeout(unlock, SCROLL_UNLOCK_FALLBACK_MS);
   }, [scrollToProgress]);
 
-  // Wheel: one page per gesture
+  // Wheel: one page per gesture; allow pass-through after Flavors
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
       if (isLockedRef.current) return;
 
       const dir = e.deltaY > 0 ? 1 : -1; // down -> next, up -> prev
 
-      // ✅ NEW: allow exiting flavors by scrolling up
       if (phase === 'flavors') {
         if (dir < 0) {
-          setIsScrollClamped(false);      // ✅ NEW: re-enable scrolling in experience
-          setPhase('shake');              // ✅ NEW: show shake UI again
-          goToStep(8);                    // ✅ NEW: snap back to shake step
+          // reverse out of flavors -> shake
+          e.preventDefault();
+          setIsScrollClamped(false);
+          setPhase('shake');
+          goToStep(8);
+        } else {
+          // forward: let page scroll normally to sections after this component
+          setIsScrollClamped(false);
+          return; // do NOT preventDefault
         }
-        return; // block downward paging while in flavors
+        return;
       }
 
+      // paging inside experience
+      e.preventDefault();
       const next = Math.max(0, Math.min(STEPS.length - 1, step + dir));
       if (next !== step) goToStep(next);
     };
@@ -175,7 +181,7 @@ const BottleAnimation = () => {
     return () => window.removeEventListener('wheel', onWheel);
   }, [step, phase, goToStep]);
 
-  // Touch: vertical swipe to page
+  // Touch: vertical swipe to page; allow pass-through after Flavors
   useEffect(() => {
     let startY = 0;
     const threshold = 24;
@@ -190,20 +196,24 @@ const BottleAnimation = () => {
       const dy = e.touches[0].clientY - startY;
       if (Math.abs(dy) < threshold) return;
 
-      e.preventDefault();
+      const dir = dy < 0 ? 1 : -1; // swipe up -> next (downward scroll)
 
-      const dir = dy < 0 ? 1 : -1; // swipe up -> next
-
-      // ✅ NEW: allow exiting flavors by swiping down (dir = -1)
       if (phase === 'flavors') {
         if (dir < 0) {
-          setIsScrollClamped(false);  // ✅ NEW
-          setPhase('shake');          // ✅ NEW
-          goToStep(8);                // ✅ NEW
+          // reverse to shake
+          e.preventDefault();
+          setIsScrollClamped(false);
+          setPhase('shake');
+          goToStep(8);
+        } else {
+          // forward: allow natural page scroll to content after animation
+          setIsScrollClamped(false);
+          return; // no preventDefault
         }
-        return; // block forward paging inside flavors
+        return;
       }
 
+      e.preventDefault();
       const next = Math.max(0, Math.min(STEPS.length - 1, step + dir));
       if (next !== step) goToStep(next);
     };
@@ -258,24 +268,29 @@ const BottleAnimation = () => {
         setCurrentFrame(0);
         shakeCount.current = 0;
         lastDirection.current = null;
-        setIsScrollClamped(true); // final clamp region
+        setIsScrollClamped(true); // enable clamp while in flavors
       }, 600);
     }
   };
 
-  // Final scroll clamp after experience
+  // Clamp only to the container’s end (fixes small screens + “stuck after flavors”)
   useEffect(() => {
     if (!isScrollClamped) return;
+
     const handleClampScroll = () => {
-      const scrollTop = window.scrollY;
-      const maxScroll = ref.current?.offsetTop || 0;
+      const containerTop = ref.current?.offsetTop ?? 0;
+      const containerHeight = ref.current?.offsetHeight ?? 0;
       const viewHeight = window.innerHeight;
-      const scrollLimit = maxScroll + 0.95 * viewHeight * 3000; // ~0.95 of h-[3000vh]
-      if (scrollTop > scrollLimit) {
-        window.scrollTo({ top: scrollLimit, behavior: 'smooth' });
+
+      // Stop at the bottom of this component (not an arbitrary vh)
+      const endOfComponent = containerTop + Math.max(0, containerHeight - viewHeight);
+
+      if (window.scrollY > endOfComponent) {
+        window.scrollTo({ top: endOfComponent, behavior: 'smooth' });
       }
     };
-    window.addEventListener('scroll', handleClampScroll);
+
+    window.addEventListener('scroll', handleClampScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleClampScroll);
   }, [isScrollClamped]);
 
@@ -293,7 +308,7 @@ const BottleAnimation = () => {
       </div>
 
       <motion.div style={{ position: 'sticky', top: 0, zIndex: 10 }} className="w-screen h-screen flex items-center justify-center">
-        {/* ---- Overlay Pages ---- */}
+        {/* ---- Overlay Pages (binary visibility per step) ---- */}
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-2 pointer-events-none">
           {/* Step 2: Intro image */}
           <motion.div
