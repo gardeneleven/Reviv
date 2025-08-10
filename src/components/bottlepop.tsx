@@ -409,62 +409,66 @@ const BottleAnimation = () => {
             </motion.div>
           )}
 
-          {phase === 'flavors' && (
-            <motion.div
-              className="absolute top-0 left-0 w-full h-full z-10"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
+{phase === 'flavors' && (
+  <motion.div
+    className="absolute top-0 left-0 w-full h-full z-10"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.4 }}
+  >
+    <div className="relative w-full h-full flex items-center justify-center">
+      {/* Title OVERLAY – always on top of bottle */}
+      <div className="absolute inset-0 z-[60] pointer-events-none">
+        <Image
+          src={flavorTitle[flavorIndex]}
+          alt="Flavor Title"
+          fill
+          style={{ objectFit: 'contain' }}
+          priority
+          draggable={false}
+          className="select-none"
+        />
+      </div>
+
+      {/* Bottle layer – below title */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[40] w-[70vw] max-w-[600px] aspect-[3/4]">
+        <div className="relative w-full h-full">
+          <Image
+            src={flavorImages[flavorIndex]}
+            alt="Flavor Bottle"
+            fill
+            style={{ objectFit: 'contain' }}
+            priority
+            draggable={false}
+            className="select-none"
+          />
+        </div>
+      </div>
+
+      {/* Buttons – above title if needed, or set to z-[70] */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-6 z-[70]">
+        <div className="flex flex-col gap-4">
+          {flavorFruits.map((fruitSrc, i) => (
+            <button
+              key={i}
+              onClick={() => setFlavorIndex(i)}
+              className={`transition-transform duration-300 ${flavorIndex === i ? 'scale-125' : 'scale-100'}`}
             >
-              <div className="relative w-full h-full flex items-center justify-center z-100">
-                <Image
-                  src={flavorTitle[flavorIndex]}
-                  alt="Flavor Bottle"
-                  fill
-                  style={{ objectFit: 'contain' }}
-                  priority
-                  draggable={false}
-                  className="select-none"
-                />
+              <Image
+                src={fruitSrc}
+                alt={`Select ${flavorNames[i]}`}
+                width={60}
+                height={60}
+                className="rounded-full"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </motion.div>
+)}
 
-                {/* 🔒 Bottle – fixed size like scroll/shake */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-[70vw] max-w-[600px] aspect-[3/4]">
-                  <div className="relative w-full h-full">
-                    <Image
-                      src={flavorImages[flavorIndex]}
-                      alt="Flavor Bottle"
-                      fill
-                      style={{ objectFit: 'contain' }}
-                      priority
-                      draggable={false}
-                      className="select-none"
-                    />
-                  </div>
-                </div>
-
-                {/* ✅ Flavor Description + Buttons – center right */}
-                <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-6 z-20">
-                  <div className="flex flex-col gap-4">
-                    {flavorFruits.map((fruitSrc, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setFlavorIndex(i)}
-                        className={`transition-transform duration-300 ${flavorIndex === i ? 'scale-125' : 'scale-100'}`}
-                      >
-                        <Image
-                          src={fruitSrc}
-                          alt={`Select ${flavorNames[i]}`}
-                          width={60}
-                          height={60}
-                          className="rounded-full"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
         </div>
       </motion.div>
     </div>
