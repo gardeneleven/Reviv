@@ -25,10 +25,9 @@ const STEPS: number[] = [0.02, 0.06, 0.095, 0.13, 0.19, 0.25, 0.625, 0.74, 0.8];
 // Optional pinned frames per step
 const STEP_FRAMES: number[] = [0, 0, 1, 3, 5, 7, 9, 12, 14, 14];
 
-// Wheel gesture thresholds to avoid accidental reverses in "flavors"
-const WHEEL_EXIT_THRESHOLD_UP = -60;    // cumulative deltaY ≤ this triggers reverse to shake
-const WHEEL_EXIT_THRESHOLD_DOWN = 60;   // cumulative deltaY ≥ this allows pass-through
-const WHEEL_ACC_RESET_MS = 180;
+// Wheel gesture thresholds (Flavors)
+const WHEEL_UP_THRESHOLD = -120;  // require strong upward to go back to Shake
+const WHEEL_RESET_MS = 180;
 
 const BottleAnimation = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -154,13 +153,15 @@ const BottleAnimation = () => {
     window.setTimeout(unlock, SCROLL_UNLOCK_FALLBACK_MS);
   }, [scrollToProgress]);
 
-  // Wheel: one page per gesture; robust thresholds in "flavors"
+  // Wheel: one page per gesture; direction-aware buffer in "flavors"
   const wheelAccRef = useRef(0);
+  const wheelDirRef = useRef<1 | -1 | 0>(0);
   const wheelTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const resetWheelAcc = () => {
+    const resetWheel = () => {
       wheelAccRef.current = 0;
+      wheelDirRef.current = 0;
       if (wheelTimerRef.current) {
         window.clearTimeout(wheelTimerRef.current);
         wheelTimerRef.current = null;
@@ -170,37 +171,44 @@ const BottleAnimation = () => {
     const onWheel = (e: WheelEvent) => {
       if (isLockedRef.current) return;
 
-      // In flavors: only reverse on a clear upward gesture (cumulative threshold).
+      const dir: 1 | -1 = e.deltaY > 0 ? 1 : -1;
+
       if (phase === 'flavors') {
+        // if direction flips, reset accumulation
+        if (wheelDirRef.current !== dir) {
+          wheelAccRef.current = 0;
+          wheelDirRef.current = dir;
+        }
+
         wheelAccRef.current += e.deltaY;
+
+        // decay/reset after short idle
         if (wheelTimerRef.current) window.clearTimeout(wheelTimerRef.current);
-        wheelTimerRef.current = window.setTimeout(resetWheelAcc, WHEEL_ACC_RESET_MS);
+        wheelTimerRef.current = window.setTimeout(resetWheel, WHEEL_RESET_MS);
 
-        // Strong upward: go back to shake
-        if (wheelAccRef.current <= WHEEL_EXIT_THRESHOLD_UP) {
-          e.preventDefault();
-          resetWheelAcc();
-          setIsScrollClamped(false);
-          setPhase('shake');
-          goToStep(8);
+        if (dir === -1) {
+          // Upward intent: only reverse when we clearly exceed the upward threshold
+          if (wheelAccRef.current <= WHEEL_UP_THRESHOLD) {
+            e.preventDefault();
+            resetWheel();
+            setIsScrollClamped(false);
+            setPhase('shake');
+            goToStep(8);
+          } else {
+            // not strong enough yet — ignore tiny jitters (no preventDefault so clamp holds)
+          }
           return;
-        }
-
-        // Strong downward: allow pass-through to content after component
-        if (wheelAccRef.current >= WHEEL_EXIT_THRESHOLD_DOWN) {
-          // do NOT preventDefault; also drop clamp so page can move
+        } else {
+          // Downward intent: ALWAYS allow natural scrolling past the component
+          // and make sure previous upward accumulation can't trigger a later bounce
           setIsScrollClamped(false);
-          // keep natural scrolling
-          return;
+          resetWheel();
+          return; // do NOT preventDefault -> pass-through
         }
-
-        // Small jitters: ignore (no preventDefault so clamp keeps you in place)
-        return;
       }
 
-      // Outside flavors: paging inside experience
+      // Outside flavors: snap-paging
       e.preventDefault();
-      const dir = e.deltaY > 0 ? 1 : -1; // down -> next, up -> prev
       const next = Math.max(0, Math.min(STEPS.length - 1, step + dir));
       if (next !== step) goToStep(next);
     };
@@ -212,7 +220,7 @@ const BottleAnimation = () => {
     };
   }, [step, phase, goToStep]);
 
-  // Touch: vertical swipe to page; allow pass-through after Flavors (already thresholded)
+  // Touch: vertical swipe (already direction-gated)
   useEffect(() => {
     let startY = 0;
     const threshold = 24;
@@ -231,15 +239,15 @@ const BottleAnimation = () => {
 
       if (phase === 'flavors') {
         if (dir < 0) {
-          // reverse to shake (clear upward swipe)
+          // reverse to shake
           e.preventDefault();
           setIsScrollClamped(false);
           setPhase('shake');
           goToStep(8);
         } else {
-          // forward: allow natural page scroll to content after animation
+          // forward: allow natural scroll to content after animation
           setIsScrollClamped(false);
-          // no preventDefault: let it scroll
+          // no preventDefault
         }
         return;
       }
@@ -259,7 +267,7 @@ const BottleAnimation = () => {
 
   // Drive phases from step indexing
   useEffect(() => {
-    if (phase === 'flavors') return; // flavors is manual until user reverses
+    if (phase === 'flavors') return; // manual until user reverses
 
     if (step === 0) {
       setPhase(hasDropped.current ? 'float' : 'drop');
@@ -299,12 +307,12 @@ const BottleAnimation = () => {
         setCurrentFrame(0);
         shakeCount.current = 0;
         lastDirection.current = null;
-        setIsScrollClamped(true); // enable clamp while in flavors
+        setIsScrollClamped(true); // keep within component until a clear gesture
       }, 600);
     }
   };
 
-  // Clamp only to the container’s end (fixes small screens + “stuck after flavors”)
+  // Clamp only to the container’s end
   useEffect(() => {
     if (!isScrollClamped) return;
 
@@ -313,7 +321,6 @@ const BottleAnimation = () => {
       const containerHeight = ref.current?.offsetHeight ?? 0;
       const viewHeight = window.innerHeight;
 
-      // Stop at the bottom of this component (not an arbitrary vh)
       const endOfComponent = containerTop + Math.max(0, containerHeight - viewHeight);
 
       if (window.scrollY > endOfComponent) {
@@ -339,7 +346,7 @@ const BottleAnimation = () => {
       </div>
 
       <motion.div style={{ position: 'sticky', top: 0, zIndex: 10 }} className="w-screen h-screen flex items-center justify-center">
-        {/* ---- Overlay Pages (binary visibility per step) ---- */}
+        {/* ---- Overlay Pages ---- */}
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-2 pointer-events-none">
           {/* Step 2: Intro image */}
           <motion.div
@@ -356,7 +363,7 @@ const BottleAnimation = () => {
             />
           </motion.div>
 
-          {/* Step 3: We Bring You */}
+          {/* Step 3 */}
           <motion.div
             style={{ opacity: step === 3 ? 1 : 0 }}
             className="absolute top-[30%] left-1/2 sm:left-[30%] -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[500px] px-6 z-[9999]"
@@ -370,7 +377,7 @@ const BottleAnimation = () => {
             </p>
           </motion.div>
 
-          {/* Step 4: So.....We Packed it in a Bottle */}
+          {/* Step 4 */}
           <motion.div
             style={{ opacity: step === 4 ? 1 : 0 }}
             className="absolute top-1/2 left-1/2 sm:left-[18%] -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[500px] px-6 z-[9999]"
@@ -380,7 +387,7 @@ const BottleAnimation = () => {
             </h1>
           </motion.div>
 
-          {/* Step 5: Instruction Overlay */}
+          {/* Step 5 */}
           <motion.div
             style={{ opacity: step === 5 ? 1 : 0 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none z-[999]"
@@ -422,7 +429,7 @@ const BottleAnimation = () => {
             </div>
           </motion.div>
 
-          {/* Step 6: That Pop? Now thats an experience */}
+          {/* Step 6 */}
           <motion.div
             style={{ opacity: step === 6 ? 1 : 0 }}
             className="absolute top-1/2 left-1/2 sm:left-[75%] -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[500px] px-6 z-[9999]"
@@ -435,7 +442,7 @@ const BottleAnimation = () => {
             </p>
           </motion.div>
 
-          {/* Step 7: Soda overlay image */}
+          {/* Step 7 */}
           <motion.div
             style={{ opacity: step === 7 ? 1 : 0 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
@@ -443,7 +450,7 @@ const BottleAnimation = () => {
             <Image src="/assets/sodaa.png" alt="Soda Overlay" width={1000} height={1000} className="w-[80vw] max-w-[900px] h-auto" priority />
           </motion.div>
 
-          {/* Step 8: Shake overlay (shown until shake completes) */}
+          {/* Step 8: Shake overlay */}
           {!isScrollClamped && (
             <motion.div
               style={{ opacity: step === 8 ? 1 : 0 }}
@@ -624,3 +631,4 @@ const BottleAnimation = () => {
 };
 
 export default BottleAnimation;
+
