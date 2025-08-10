@@ -5,7 +5,7 @@ import { useScroll, useTransform, motion, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
 // -----------------------------------------------------------------------------
-// Types: add scrollend to WindowEventMap so TS is happy (no 'any' casts needed).
+// Types
 // -----------------------------------------------------------------------------
 declare global {
   interface WindowEventMap {
@@ -14,15 +14,15 @@ declare global {
 }
 
 // -----------------------------------------------------------------------------
-// Constants moved to module scope (stable -> fixes exhaustive-deps warnings)
+// Constants
 // -----------------------------------------------------------------------------
 const SCROLL_FRAMES = 16;
 const LAST_SCROLL_FRAME = SCROLL_FRAMES - 1; // 15
 
-// Snap points for pages 0..8  (unchanged)
+// Snap points for pages 0..8
 const STEPS: number[] = [0.02, 0.06, 0.095, 0.13, 0.19, 0.25, 0.625, 0.74, 0.8];
 
-// Optional pinned frames per step (unchanged)
+// Optional pinned frames per step
 const STEP_FRAMES: number[] = [0, 0, 1, 3, 5, 7, 9, 12, 14, 14];
 
 const BottleAnimation = () => {
@@ -71,7 +71,7 @@ const BottleAnimation = () => {
     setStep(1); // move to float page after first drop completes
   };
 
-  // Assets (unchanged)
+  // Assets
   const flavorImages = useMemo(
     () => [
       '/assets/bottles/orange.png',
@@ -152,11 +152,21 @@ const BottleAnimation = () => {
   // Wheel: one page per gesture
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      if (phase === 'flavors') return; // don't page inside flavors
       e.preventDefault();
       if (isLockedRef.current) return;
 
       const dir = e.deltaY > 0 ? 1 : -1; // down -> next, up -> prev
+
+      // ✅ NEW: allow exiting flavors by scrolling up
+      if (phase === 'flavors') {
+        if (dir < 0) {
+          setIsScrollClamped(false);      // ✅ NEW: re-enable scrolling in experience
+          setPhase('shake');              // ✅ NEW: show shake UI again
+          goToStep(8);                    // ✅ NEW: snap back to shake step
+        }
+        return; // block downward paging while in flavors
+      }
+
       const next = Math.max(0, Math.min(STEPS.length - 1, step + dir));
       if (next !== step) goToStep(next);
     };
@@ -171,11 +181,10 @@ const BottleAnimation = () => {
     const threshold = 24;
 
     const onTouchStart = (e: TouchEvent) => {
-      if (phase === 'flavors') return;
       startY = e.touches[0].clientY;
     };
+
     const onTouchMove = (e: TouchEvent) => {
-      if (phase === 'flavors') return;
       if (isLockedRef.current) return;
 
       const dy = e.touches[0].clientY - startY;
@@ -184,6 +193,17 @@ const BottleAnimation = () => {
       e.preventDefault();
 
       const dir = dy < 0 ? 1 : -1; // swipe up -> next
+
+      // ✅ NEW: allow exiting flavors by swiping down (dir = -1)
+      if (phase === 'flavors') {
+        if (dir < 0) {
+          setIsScrollClamped(false);  // ✅ NEW
+          setPhase('shake');          // ✅ NEW
+          goToStep(8);                // ✅ NEW
+        }
+        return; // block forward paging inside flavors
+      }
+
       const next = Math.max(0, Math.min(STEPS.length - 1, step + dir));
       if (next !== step) goToStep(next);
     };
@@ -196,9 +216,9 @@ const BottleAnimation = () => {
     };
   }, [step, phase, goToStep]);
 
-  // Drive phases from step indexing (unchanged)
+  // Drive phases from step indexing
   useEffect(() => {
-    if (phase === 'flavors') return;
+    if (phase === 'flavors') return; // flavors is manual until user reverses
 
     if (step === 0) {
       setPhase(hasDropped.current ? 'float' : 'drop');
@@ -211,14 +231,14 @@ const BottleAnimation = () => {
     }
   }, [step, phase, setPhase]);
 
-  // Optional: pin bottle frames for narrative beats (unchanged)
+  // Optional: pin bottle frames for narrative beats
   useEffect(() => {
     if (phase === 'scroll') {
       setCurrentFrame(STEP_FRAMES[step] ?? 0);
     }
   }, [step, phase]);
 
-  // Shake logic (unchanged)
+  // Shake logic
   const lastDirection = useRef<'left' | 'right' | null>(null);
   const shakeCount = useRef(0);
 
@@ -243,7 +263,7 @@ const BottleAnimation = () => {
     }
   };
 
-  // Final scroll clamp after experience (unchanged)
+  // Final scroll clamp after experience
   useEffect(() => {
     if (!isScrollClamped) return;
     const handleClampScroll = () => {
@@ -273,7 +293,7 @@ const BottleAnimation = () => {
       </div>
 
       <motion.div style={{ position: 'sticky', top: 0, zIndex: 10 }} className="w-screen h-screen flex items-center justify-center">
-        {/* ---- Overlay Pages (binary visibility per step) ---- */}
+        {/* ---- Overlay Pages ---- */}
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-2 pointer-events-none">
           {/* Step 2: Intro image */}
           <motion.div
