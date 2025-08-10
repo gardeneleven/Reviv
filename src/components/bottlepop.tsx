@@ -5,7 +5,7 @@ import { useScroll, useTransform, motion, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
 // -----------------------------------------------------------------------------
-// Types: add scrollend to WindowEventMap so TS is happy.
+// Types
 // -----------------------------------------------------------------------------
 declare global {
   interface WindowEventMap {
@@ -24,6 +24,11 @@ const STEPS: number[] = [0.02, 0.06, 0.095, 0.13, 0.19, 0.25, 0.625, 0.74, 0.8];
 
 // Optional pinned frames per step
 const STEP_FRAMES: number[] = [0, 0, 1, 3, 5, 7, 9, 12, 14, 14];
+
+// Wheel gesture thresholds to avoid accidental reverses in "flavors"
+const WHEEL_EXIT_THRESHOLD_UP = -60;    // cumulative deltaY ≤ this triggers reverse to shake
+const WHEEL_EXIT_THRESHOLD_DOWN = 60;   // cumulative deltaY ≥ this allows pass-through
+const WHEEL_ACC_RESET_MS = 180;
 
 const BottleAnimation = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -149,39 +154,65 @@ const BottleAnimation = () => {
     window.setTimeout(unlock, SCROLL_UNLOCK_FALLBACK_MS);
   }, [scrollToProgress]);
 
-  // Wheel: one page per gesture; allow pass-through after Flavors
+  // Wheel: one page per gesture; robust thresholds in "flavors"
+  const wheelAccRef = useRef(0);
+  const wheelTimerRef = useRef<number | null>(null);
+
   useEffect(() => {
+    const resetWheelAcc = () => {
+      wheelAccRef.current = 0;
+      if (wheelTimerRef.current) {
+        window.clearTimeout(wheelTimerRef.current);
+        wheelTimerRef.current = null;
+      }
+    };
+
     const onWheel = (e: WheelEvent) => {
       if (isLockedRef.current) return;
 
-      const dir = e.deltaY > 0 ? 1 : -1; // down -> next, up -> prev
-
+      // In flavors: only reverse on a clear upward gesture (cumulative threshold).
       if (phase === 'flavors') {
-        if (dir < 0) {
-          // reverse out of flavors -> shake
+        wheelAccRef.current += e.deltaY;
+        if (wheelTimerRef.current) window.clearTimeout(wheelTimerRef.current);
+        wheelTimerRef.current = window.setTimeout(resetWheelAcc, WHEEL_ACC_RESET_MS);
+
+        // Strong upward: go back to shake
+        if (wheelAccRef.current <= WHEEL_EXIT_THRESHOLD_UP) {
           e.preventDefault();
+          resetWheelAcc();
           setIsScrollClamped(false);
           setPhase('shake');
           goToStep(8);
-        } else {
-          // forward: let page scroll normally to sections after this component
-          setIsScrollClamped(false);
-          return; // do NOT preventDefault
+          return;
         }
+
+        // Strong downward: allow pass-through to content after component
+        if (wheelAccRef.current >= WHEEL_EXIT_THRESHOLD_DOWN) {
+          // do NOT preventDefault; also drop clamp so page can move
+          setIsScrollClamped(false);
+          // keep natural scrolling
+          return;
+        }
+
+        // Small jitters: ignore (no preventDefault so clamp keeps you in place)
         return;
       }
 
-      // paging inside experience
+      // Outside flavors: paging inside experience
       e.preventDefault();
+      const dir = e.deltaY > 0 ? 1 : -1; // down -> next, up -> prev
       const next = Math.max(0, Math.min(STEPS.length - 1, step + dir));
       if (next !== step) goToStep(next);
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      if (wheelTimerRef.current) window.clearTimeout(wheelTimerRef.current);
+    };
   }, [step, phase, goToStep]);
 
-  // Touch: vertical swipe to page; allow pass-through after Flavors
+  // Touch: vertical swipe to page; allow pass-through after Flavors (already thresholded)
   useEffect(() => {
     let startY = 0;
     const threshold = 24;
@@ -200,7 +231,7 @@ const BottleAnimation = () => {
 
       if (phase === 'flavors') {
         if (dir < 0) {
-          // reverse to shake
+          // reverse to shake (clear upward swipe)
           e.preventDefault();
           setIsScrollClamped(false);
           setPhase('shake');
@@ -208,7 +239,7 @@ const BottleAnimation = () => {
         } else {
           // forward: allow natural page scroll to content after animation
           setIsScrollClamped(false);
-          return; // no preventDefault
+          // no preventDefault: let it scroll
         }
         return;
       }
