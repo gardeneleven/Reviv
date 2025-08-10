@@ -416,7 +416,7 @@ const BottleAnimation = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4 }}
             >
-              <div className="relative w-full h-full flex items-center justify-center">
+              <div className="relative w-full h-full flex items-center justify-center z-100">
                 <Image
                   src={flavorTitle[flavorIndex]}
                   alt="Flavor Bottle"
