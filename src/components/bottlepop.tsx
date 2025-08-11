@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useScroll, useTransform, motion, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
-
 const SCROLL_FRAMES = 16;
 const LAST_SCROLL_FRAME = SCROLL_FRAMES - 1; // 15
 
@@ -35,9 +34,7 @@ const BottleAnimation = () => {
   );
 
   const rotate = useTransform(scrollYProgress, [zoomInStart, scrollEnd], [5, 0]);
-
   const frame = useTransform(scrollYProgress, [zoomInEnd, scrollEnd], [0, LAST_SCROLL_FRAME]);
-
   const isScrollStarted = useTransform(scrollYProgress, (v) => v > zoomInStart);
 
   useEffect(() => {
@@ -114,8 +111,13 @@ const BottleAnimation = () => {
     'Classic fizz with a bold cola kick.',
   ];
 
-  const introImgOpacity = useTransform(scrollYProgress, [0.06, 0.075, 0.10], [0, 1, 0]);
-  const introImgY = useTransform(scrollYProgress, [0.06, 0.075, 0.10], [40, 0, -40]);
+  /* ---------------------------------------------
+     INTRO: show "introducing reviv" immediately
+     Appears at load (opacity 1), holds briefly,
+     then fades out by ~6% scroll.
+  ----------------------------------------------*/
+  const introImgOpacity = useTransform(scrollYProgress, [0, 0.09, 0.10], [1, 1, 0]);
+  const introImgY = useTransform(scrollYProgress, [0, 0.09, 0.10], [0, 0, -40]);
 
   const text1Opacity = useTransform(scrollYProgress, [0.11, 0.13, 0.17], [0, 1, 0]);
   const text1Y = useTransform(scrollYProgress, [0.11, 0.13, 0.17], [40, 0, -40]);
@@ -197,9 +199,10 @@ const BottleAnimation = () => {
 
       <motion.div style={{ position: 'sticky', top: 0, zIndex: 10 }} className="w-screen h-screen flex items-center justify-center">
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-2 pointer-events-none">
+          {/* INTRO appears immediately at load */}
           <motion.div
             style={{ opacity: introImgOpacity, y: introImgY }}
-            className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-6 pointer-events-none z-20"
+            className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center gap-6 pointer-events-none z-[99999]"
           >
             <Image
               src="/assets/reviv.png"
@@ -213,7 +216,7 @@ const BottleAnimation = () => {
 
           <motion.div
             style={{ opacity: text1Opacity, y: text1Y }}
-            className="absolute top-1/2 left-1/2 sm:left-[75%] transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[500px] h-auto flex flex-col justify-center items-start text-left px-6 z-[9999] sm:z-auto"
+            className="absolute top-1/2 left-1/2 sm:left={[75]} transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[500px] h-auto flex flex-col justify-center items-start text-left px-6 z-[9999] sm:z-auto"
           >
             <h1 className="text-yellow-400 text-2xl sm:text-4xl font-bold mb-4">
               Not just a Soda, We wanted to bring you an Experience
@@ -409,66 +412,65 @@ const BottleAnimation = () => {
             </motion.div>
           )}
 
-{phase === 'flavors' && (
-  <motion.div
-    className="absolute top-0 left-0 w-full h-full z-10"
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.4 }}
-  >
-    <div className="relative w-full h-full flex items-center justify-center">
-      
-      {/* 🔝 Title – highest z-index */}
-      <div className="absolute inset-0 flex items-center justify-center z-[999]">
-        <Image
-          src={flavorTitle[flavorIndex]}
-          alt="Flavor Title"
-          fill
-          style={{ objectFit: 'contain' }}
-          priority
-          draggable={false}
-          className="select-none"
-        />
-      </div>
-
-      {/* 🔒 Bottle – fixed size like scroll/shake */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-[70vw] max-w-[600px] aspect-[3/4]">
-        <div className="relative w-full h-full">
-          <Image
-            src={flavorImages[flavorIndex]}
-            alt="Flavor Bottle"
-            fill
-            style={{ objectFit: 'contain' }}
-            priority
-            draggable={false}
-            className="select-none"
-          />
-        </div>
-      </div>
-
-      {/* ✅ Flavor Description + Buttons – center right */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-6 z-[9999]">
-        <div className="flex flex-col gap-4">
-          {flavorFruits.map((fruitSrc, i) => (
-            <button
-              key={i}
-              onClick={() => setFlavorIndex(i)}
-              className={`transition-transform duration-300 ${flavorIndex === i ? 'scale-125' : 'scale-100'}`}
+          {phase === 'flavors' && (
+            <motion.div
+              className="absolute top-0 left-0 w-full h-full z-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
             >
-              <Image
-                src={fruitSrc}
-                alt={`Select ${flavorNames[i]}`}
-                width={60}
-                height={60}
-                className="rounded-full"
-              />
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  </motion.div>
-)}
+              <div className="relative w-full h-full flex items-center justify-center">
+                {/* Title – highest z-index */}
+                <div className="absolute inset-0 flex items-center justify-center z-[999]">
+                  <Image
+                    src={flavorTitle[flavorIndex]}
+                    alt="Flavor Title"
+                    fill
+                    style={{ objectFit: 'contain' }}
+                    priority
+                    draggable={false}
+                    className="select-none"
+                  />
+                </div>
+
+                {/* Bottle – fixed size */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-[70vw] max-w-[600px] aspect-[3/4]">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={flavorImages[flavorIndex]}
+                      alt="Flavor Bottle"
+                      fill
+                      style={{ objectFit: 'contain' }}
+                      priority
+                      draggable={false}
+                      className="select-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Flavor buttons – right */}
+                <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-6 z-[9999]">
+                  <div className="flex flex-col gap-4">
+                    {flavorFruits.map((fruitSrc, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setFlavorIndex(i)}
+                        className={`transition-transform duration-300 ${flavorIndex === i ? 'scale-125' : 'scale-100'}`}
+                      >
+                        <Image
+                          src={fruitSrc}
+                          alt={`Select ${flavorNames[i]}`}
+                          width={60}
+                          height={60}
+                          className="rounded-full"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </div>

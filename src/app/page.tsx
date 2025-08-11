@@ -10,7 +10,6 @@ import BottlePop from '@/components/bottlepop';
 import ChooseFrom from '@/components/chooseFrom';
 import Footer from '@/components/footer';
 import "./globals.css";
-import Hero from '@/components/hero';
 import CustomCursor from '@/components/customcursor';
 
 export default function Page() {
@@ -37,26 +36,6 @@ export default function Page() {
       <div ref={bottleRef}>
         <BottlePop />
       </div>
-
-      <motion.div
-        style={{
-          opacity: useTransform(scrollYProgress, [0.125, 0.16], [1, 0]),
-          y: useTransform(scrollYProgress, [0.125, 0.16], [0, -100]),
-        }}
-        className="absolute top-0 left-0 w-full h-screen z-[100]"
-      >
-        <Hero />
-
-        <motion.div
-          style={{
-            opacity: useTransform(scrollYProgress, [0.17, 0.18], [0, 1]),
-            y: useTransform(scrollYProgress, [0.17, 0.18], [100, 0]),
-          }}
-          className="relative z-10"
-        >
-          {/* additional content */}
-        </motion.div>
-      </motion.div>
 
       <motion.div
         style={{
